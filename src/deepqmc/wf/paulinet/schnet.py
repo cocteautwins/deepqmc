@@ -116,6 +116,16 @@ class SchNetSpinLayer(nn.Module):
         )
 
 
+class SchNetSingleElectronLayer(nn.Module):
+    def __init__(self, factory, n_up):
+        super().__init__()
+        self.w = factory.w_subnet()
+        self.g = factory.g_subnet()
+
+    def forward(self, x, Y, _, edges_nuc):
+        z_nuc = (self.w(edges_nuc) * Y[..., None, :, :]).sum(dim=-2)
+        return self.g(z_nuc)
+
 class ElectronicSchNet(nn.Module):
     r"""Graph neural network SchNet adapted to handle electrons.
 
@@ -200,6 +210,7 @@ class ElectronicSchNet(nn.Module):
     layer_factories = {
         1: SchNetLayer,
         2: SchNetSpinLayer,
+        'mean-field': SchNetSingleElectronLayer,
     }
 
     def __init__(
