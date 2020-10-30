@@ -126,6 +126,7 @@ class SchNetSingleElectronLayer(nn.Module):
         z_nuc = (self.w(edges_nuc) * Y[..., None, :, :]).sum(dim=-2)
         return self.g(z_nuc)
 
+
 class ElectronicSchNet(nn.Module):
     r"""Graph neural network SchNet adapted to handle electrons.
 
@@ -218,12 +219,12 @@ class ElectronicSchNet(nn.Module):
         n_up,
         n_down,
         n_nuclei,
-        embedding_dim,
         dist_feat_dim,
         subnet_metafactory=None,
         *,
         n_interactions=3,
         kernel_dim=64,
+        embedding_dim=64,
         version=2,
         layer_norm=False,
     ):
@@ -231,6 +232,7 @@ class ElectronicSchNet(nn.Module):
         subnet_metafactory = subnet_metafactory or SubnetFactory
         subnet_factory = subnet_metafactory(dist_feat_dim, kernel_dim, embedding_dim)
         super().__init__()
+        self.embedding_dim = embedding_dim
         self.Y = nn.Embedding(n_nuclei, kernel_dim)
         self.X = nn.Embedding(1 if n_up == n_down else 2, embedding_dim)
         self.layers = nn.ModuleList(
